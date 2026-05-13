@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  backend-8091:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: backend-8091-standalone
+    ports:
+      - "8091:8091"
+    environment:
+      - DB_ENDPOINT=db-8091
+      - DB_PORT=3306
+      - DB_NAME=innovatech_db
+      - DB_USERNAME=admin
+      - DB_PASSWORD=admin_pass
+    depends_on:
+      - db-8091
+
+  db-8091:
+    image: mariadb:10.11
+    container_name: db-8091-standalone
+    environment:
+      - MARIADB_DATABASE=innovatech_db
+      - MARIADB_USER=admin
+      - MARIADB_PASSWORD=admin_pass
+      - MARIADB_ROOT_PASSWORD=root_pass
+    volumes:
+      - data-8091:/var/lib/mysql
+
+volumes:
+  data-8091:
