@@ -15,8 +15,8 @@ FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
 # SEGURIDAD: Crear un usuario no root para evitar escalada de privilegios
-RUN addgroup -S innovatech && adduser -S gcuevas -G innovatech
-USER gcuevas
+RUN addgroup -S innovatech && adduser -S admin -G innovatech
+USER admin
 
 # RENDIMIENTO: Copiamos solo el artefacto final de la etapa anterior (Capa limpia)
 COPY --from=build /app/target/*.jar app.jar
