@@ -1,0 +1,59 @@
+name: Deploy Backend Despachos (8091)
+
+on:
+  push:
+    # Se activará cada vez que subas cambios a la rama main
+    branches: [ "main" ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v4
+        with:
+          # IMPORTANTE: Apuntamos a la subcarpeta donde está el Dockerfile
+          context: ./Springboot-API-REST-DESPACHO
+          push: true
+          # Se genera la imagen con tu usuario de Docker Hub
+          tags: ${{ secrets.DOCKER_USERNAME }}/innovatech-backend-8091:latest
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH Proxy Jump (Frontend as Bastion)
+        uses: appleboy/ssh-action@master
+        with:
+          # Datos del destino final (Backend en subred privada)
+          host: ${{ secrets.BACKEND_PRIVATE_IP }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+          # Datos del puente (Frontend en subred pública)
+          proxy_host: ${{ secrets.FRONTEND_PUBLIC_IP }}
+          proxy_username: ${{ secrets.SSH_USER }}
+          proxy_key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+          # Comandos a ejecutar en el Backend
+          script: |
+            # 1. Entrar a la carpeta del orquestador maestro
+            cd ~/innovatech-deployment
+            
+            # 2. Descargar la imagen recién subida a Docker Hub
+            docker compose pull backend-8091
+            
+            # 3. Levantar el servicio actualizado en segundo plano
+            docker compose up -d backend-8091
+            
+            # 4. Limpiar imágenes huérfanas para ahorrar espacio en la EC2
+            docker image prune -f
