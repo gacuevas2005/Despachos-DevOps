@@ -3,7 +3,7 @@ name: Deploy Backend Despachos (8091)
 on:
   push:
     # Se activará cada vez que subas cambios a la rama main
-    branches: [ "main" ]
+    branches: [ "deploy" ]
 
 jobs:
   build-and-push:
