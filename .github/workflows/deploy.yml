@@ -3,7 +3,7 @@ name: CI/CD Pipeline - Despachos
 on:
   push:
     branches:
-      - main # (Cámbialo a 'master' si tu rama principal se llama así)
+      - deploy # (Cámbialo a 'master' si tu rama principal se llama así)
 
 jobs:
   build-push-deploy:
