@@ -3,7 +3,7 @@ name: CI/CD Pipeline - Despachos
 on:
   push:
     branches:
-      - deploy # (Cámbialo a 'master' si tu rama principal se llama así)
+      - main # (Cámbialo a 'master' si tu rama principal se llama así)
 
 jobs:
   build-push-deploy:
@@ -30,8 +30,12 @@ jobs:
           ECR_REPOSITORY: innovatech-backend-despachos
           IMAGE_TAG: latest
         run: |
+          # Entramos a la carpeta donde realmente está el Dockerfile
+          cd Springboot-API-REST-DESPACHO
+          
           # Construye la imagen usando tu Dockerfile
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          
           # Sube la imagen a AWS ECR
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
